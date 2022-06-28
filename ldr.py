@@ -1,4 +1,5 @@
 import json
+
 import torch
 import numpy as np
 from torchvision import transforms
@@ -10,7 +11,7 @@ import torch.optim as optim
 
 convert_tensor = transforms.ToTensor()
 
-f = open('aruco_v0.0.json')
+f = open('annotations/aruco_v0.1.json')
 data = json.load(f)
 f.close()
 
@@ -60,7 +61,7 @@ class CustomDataset(torch.utils.data.Dataset):
 		return item
 
 dataset = CustomDataset()
-dataloader = torch.utils.data.DataLoader(dataset, batch_size=2,
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=4,
                         shuffle=True, num_workers=0)
 
 
@@ -99,7 +100,7 @@ def aruco_loss(test, base):
 optimizer = optim.Adam(model.parameters(), lr=0.005)
 
 print("train start")
-for epoch in range(1024):
+for epoch in range(64):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
