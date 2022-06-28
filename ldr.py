@@ -96,7 +96,7 @@ def aruco_loss(test, base):
 	return loss_ten
 
 
-optimizer = optim.Adam(model.parameters(), lr=0.02)
+optimizer = optim.Adam(model.parameters(), lr=0.005)
 
 print("train start")
 for epoch in range(1024):
