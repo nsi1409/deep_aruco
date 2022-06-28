@@ -68,27 +68,19 @@ inpt = resize(inpt).unsqueeze(0)
 
 
 def aruco_loss(test, base):
-	loss = 0
 	loss_ten = torch.tensor([0.0])
 	for i in range(base.size(dim=0)):
-		base_class = base[i][0].item()
-		test_class = test[i][0].item()
+		for j in range(int(base.size(dim=1)/9)):
+			base_class_ten = base[i][9*j]
+			test_class_ten = test[i][9*j]
 
-		base_class_ten = base[i][0]
-		test_class_ten = test[i][0]
+			loss_ten += (base_class_ten - test_class_ten) ** 2
 
-		loss += (base_class - test_class) ** 2
-		loss_ten += (base_class_ten - test_class_ten) ** 2
+			run_ten = torch.tensor([0.0])
+			for k in range(8):
+				run_ten += (base[i][(9*j)+k+1] - test[i][(9*j)+k+1]) ** 2
 
-		run = 0
-		run_ten = torch.tensor([0.0])
-		for j in range(base.size(dim=1) - 1):
-			#print(f'base class {base_class} , test class {test_class}')
-			run += (base[i][j+1].item() - test[i][j+1].item()) ** 2
-			run_ten += (base[i][j+1] - test[i][j+1]) ** 2
-			#print(f'run loss: {run}, test scalar: {test[i][j]}, base scalar: {base[i][j]}')
-		loss += ((base_class * test_class) ** 2) * (run / (base.size(dim=1) - 1))
-		loss_ten += ((base_class_ten * test_class_ten) ** 2) * (run_ten / torch.tensor([(base.size(dim=1) - 1)]).float())
+			loss_ten += ((base_class_ten * test_class_ten) ** 2) * (run_ten / 8).float()
 
 	return loss_ten
 
@@ -96,15 +88,15 @@ def aruco_loss(test, base):
 optimizer = optim.Adam(model.parameters(), lr=0.05)
 
 print("enumerate start")
-for epoch in range(1):
+for epoch in range(12):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
 		imgs = resize(imgs)
 		optimizer.zero_grad()
 		output = model(imgs)
-		print(output.size())
 		loss = aruco_loss(output, labels)
+		print(f'epoch: {epoch} | loss: {loss}')
 		loss.backward()
 		optimizer.step()
 		#print(f'loss: {loss}')
