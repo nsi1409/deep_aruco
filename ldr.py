@@ -18,6 +18,9 @@ data_indexed = list(data["_via_img_metadata"].values())
 number_tags = 2
 resize = transforms.Resize((224, 224))
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print(device)
+
 def index_load(i):
 	label_ten = torch.zeros(9*number_tags)
 	path = data_indexed[i]["filename"]
@@ -38,6 +41,8 @@ def index_load(i):
 			pass
 
 	img_ten = resize(img_ten)
+	img_ten = img_ten.to(device)
+	label_ten = label_ten.to(device)
 
 	return img_ten, label_ten
 
@@ -50,8 +55,8 @@ class CustomDataset(torch.utils.data.Dataset):
 		return len(data_indexed)
 
 	def __getitem__(self, idx):
-		return index_load(idx)
-
+		item = index_load(idx)
+		return item
 
 dataset = CustomDataset()
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=2,
@@ -60,6 +65,7 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=2,
 
 res = md.resnet50(pretrained=True)
 model = nn.Sequential(res, nn.Linear(1000, number_tags*9))
+model.to(device)
 #print(res)
 
 
@@ -71,7 +77,7 @@ inpt = resize(inpt).unsqueeze(0)
 
 
 def aruco_loss(test, base):
-	loss_ten = torch.tensor([0.0])
+	loss_ten = torch.tensor([0.0]).to(device)
 	for i in range(base.size(dim=0)):
 		for j in range(int(base.size(dim=1)/9)):
 			base_class_ten = base[i][9*j]
@@ -79,7 +85,7 @@ def aruco_loss(test, base):
 
 			loss_ten += (base_class_ten - test_class_ten) ** 2
 
-			run_ten = torch.tensor([0.0])
+			run_ten = torch.tensor([0.0]).to(device)
 			for k in range(8):
 				run_ten += (base[i][(9*j)+k+1] - test[i][(9*j)+k+1]) ** 2
 
