@@ -90,17 +90,17 @@ def aruco_loss(test, base):
 
 optimizer = optim.Adam(model.parameters(), lr=0.05)
 
-print("enumerate start")
+print("train start")
 for epoch in range(2048):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
-		print(imgs.size())
+		#print(imgs.size())
 		#imgs = resize(imgs)
 		optimizer.zero_grad()
 		output = model(imgs)
 		loss = aruco_loss(output, labels)
-		print(f'epoch: {epoch} | loss: {loss}')
+		print(f'epoch: {epoch} | loss: {loss.item()}')
 		loss.backward()
 		optimizer.step()
 		#print(f'loss: {loss}')
