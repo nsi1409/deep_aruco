@@ -16,25 +16,29 @@ f.close()
 
 data_indexed = list(data["_via_img_metadata"].values())
 number_tags = 2
+resize = transforms.Resize((224, 224))
 
 def index_load(i):
 	label_ten = torch.zeros(9*number_tags)
 	path = data_indexed[i]["filename"]
+	img = Image.open(f'imgs/{path}')
+	img_ten = convert_tensor(img)
+
 	for j in range(len(data_indexed[i]["regions"])):
 		try:
 			x = data_indexed[i]["regions"][j]["shape_attributes"]["cx"]
 			y = data_indexed[i]["regions"][j]["shape_attributes"]["cy"]
 			corner = int(data_indexed[i]["regions"][j]["region_attributes"]["aruco"])
 			#print(f'corner {corner}')
-			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x)
-			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / img_ten.size(dim=2)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / img_ten.size(dim=1)
 			label_ten[9*(corner//10)] = float(1)
 		except:
 			#print('empty 0 input')
 			pass
 
-	img = Image.open(f'imgs/{path}')
-	img_ten = convert_tensor(img)
+	img_ten = resize(img_ten)
+
 	return img_ten, label_ten
 
 
@@ -60,7 +64,6 @@ model = nn.Sequential(res, nn.Linear(1000, number_tags*9))
 
 
 inpt, _ = dataset[0]
-resize = transforms.Resize(224)
 inpt = resize(inpt).unsqueeze(0)
 #print(f'inpt: {inpt}')
 
@@ -88,11 +91,12 @@ def aruco_loss(test, base):
 optimizer = optim.Adam(model.parameters(), lr=0.05)
 
 print("enumerate start")
-for epoch in range(12):
+for epoch in range(2048):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
-		imgs = resize(imgs)
+		print(imgs.size())
+		#imgs = resize(imgs)
 		optimizer.zero_grad()
 		output = model(imgs)
 		loss = aruco_loss(output, labels)
