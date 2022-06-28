@@ -99,7 +99,7 @@ def aruco_loss(test, base):
 optimizer = optim.Adam(model.parameters(), lr=0.02)
 
 print("train start")
-for epoch in range(100):
+for epoch in range(1024):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
