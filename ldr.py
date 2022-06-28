@@ -17,6 +17,7 @@ f.close()
 data_indexed = list(data["_via_img_metadata"].values())
 number_tags = 2
 resize = transforms.Resize((224, 224))
+weight_path = "deep_aruco.trch"
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -65,6 +66,7 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=2,
 
 res = md.resnet50(pretrained=True)
 model = nn.Sequential(res, nn.Linear(1000, number_tags*9))
+model.load_state_dict(torch.load(weight_path))
 model.to(device)
 #print(res)
 
@@ -97,7 +99,7 @@ def aruco_loss(test, base):
 optimizer = optim.Adam(model.parameters(), lr=0.05)
 
 print("train start")
-for epoch in range(2048):
+for epoch in range(100):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
@@ -111,5 +113,9 @@ for epoch in range(2048):
 		optimizer.step()
 		#print(f'loss: {loss}')
 		#print(model.weight.grad)
+
+
+torch.save(model.state_dict(), weight_path)
+print('model saved')
 
 
