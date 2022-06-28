@@ -91,15 +91,15 @@ def aruco_loss(test, base):
 			for k in range(8):
 				run_ten += (base[i][(9*j)+k+1] - test[i][(9*j)+k+1]) ** 2
 
-			loss_ten += ((base_class_ten * test_class_ten) ** 2) * (run_ten / 8).float()
+			loss_ten += base_class_ten * (run_ten / 8).float()
 
 	return loss_ten
 
 
-optimizer = optim.Adam(model.parameters(), lr=0.05)
+optimizer = optim.Adam(model.parameters(), lr=0.02)
 
 print("train start")
-for epoch in range(4096):
+for epoch in range(100):
 	for indx, samples in enumerate(dataloader):
 		#print(indx, samples)
 		imgs, labels = samples
