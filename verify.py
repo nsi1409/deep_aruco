@@ -3,10 +3,16 @@ import torchvision.models as md
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
+import json
 
 path = 'DSCF0002.JPG'
 number_tags = 2
 weight_path = 'deep_aruco.trch'
+
+f = open('annotations/aruco_v0.1.json')
+data = json.load(f)
+f.close()
+data_indexed = list(data["_via_img_metadata"].values())
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -24,6 +30,36 @@ img_ten = convert_tensor(img).to(device)
 img_ten = resize(img_ten).unsqueeze(0)
 
 output = model(img_ten)
-print(output)
+print(f'inf: {output.squeeze()}')
+
+def index_load(i):
+	label_ten = torch.zeros(9*number_tags)
+	path = data_indexed[i]["filename"]
+	print(path)
+	img = Image.open(f'imgs/{path}')
+	img_ten = convert_tensor(img)
+
+	for j in range(len(data_indexed[i]["regions"])):
+		try:
+			x = data_indexed[i]["regions"][j]["shape_attributes"]["cx"]
+			y = data_indexed[i]["regions"][j]["shape_attributes"]["cy"]
+			corner = int(data_indexed[i]["regions"][j]["region_attributes"]["aruco"])
+			#print(f'corner {corner}')
+			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / img_ten.size(dim=2)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / img_ten.size(dim=1)
+			label_ten[9*(corner//10)] = float(1)
+		except:
+			print('empty 0 input')
+			pass
+
+	img_ten = resize(img_ten)
+	img_ten = img_ten.to(device)
+	label_ten = label_ten.to(device)
+
+	return img_ten, label_ten
+
+_, label_ten = index_load(5)
+
+print(f'ground: {label_ten}')
 
 
