@@ -4,6 +4,8 @@ import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
 import json
+import matplotlib.pyplot as plt
+
 
 path = 'DSCF0002.JPG'
 number_tags = 2
@@ -30,7 +32,8 @@ img_ten = convert_tensor(img).to(device)
 img_ten = resize(img_ten).unsqueeze(0)
 
 output = model(img_ten)
-print(f'inf: {output.squeeze()}')
+output = output.squeeze()
+print(f'inf: {output}')
 
 def index_load(i):
 	label_ten = torch.zeros(9*number_tags)
@@ -61,5 +64,21 @@ def index_load(i):
 _, label_ten = index_load(5)
 
 print(f'ground: {label_ten}')
+
+implot = plt.imshow(img_ten.squeeze().permute(1, 2, 0).to("cpu"))
+
+conf = 0.7
+
+output.to("cpu")
+for i in range(int(output.size(dim=0))//9):
+	if(output[9*i] > conf):
+		for j in range(4):
+			x = float(output[(9*i)+(2*j)+1] * 224)
+			y = float(output[(9*i)+(2*j)+2] * 224)
+			plt.scatter(x=[x], y=[y], c='r', s=7)
+			plt.text(x+.03, y+.03, f'{i}:{j}', c='r', fontsize=9)
+
+plt.show()
+
 
 
