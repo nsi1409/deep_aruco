@@ -118,5 +118,8 @@ for epoch in range(300):
 
 torch.save(model.state_dict(), weight_path)
 print('model saved')
+dummy = torch.zeros(1, 3, 224, 224, device=device)
+torch.onnx.export(model, dummy, "deep_aruco.onnx")
+print('model export to onnx')
 
 
