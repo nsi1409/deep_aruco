@@ -7,9 +7,9 @@ import json
 import matplotlib.pyplot as plt
 
 
-path = 'DSCF0002.JPG'
 number_tags = 2
 weight_path = 'deep_aruco.trch'
+test_number = 7
 
 f = open('annotations/aruco_v0.1.json')
 data = json.load(f)
@@ -27,15 +27,6 @@ model.to(device)
 
 convert_tensor = transforms.ToTensor()
 resize = transforms.Resize((224, 224))
-img = Image.open(f'imgs/{path}')
-img_ten = convert_tensor(img).to(device)
-img_ten = resize(img_ten).unsqueeze(0)
-
-output = model(img_ten)
-output = output.squeeze()
-print(f'inf: {output}')
-
-print(f'img path: {path}')
 
 def index_load(i):
 	label_ten = torch.zeros(9*number_tags)
@@ -63,7 +54,11 @@ def index_load(i):
 
 	return img_ten, label_ten
 
-_, label_ten = index_load(5)
+img_ten, label_ten = index_load(test_number)
+
+output = model(img_ten.unsqueeze(0))
+output = output.squeeze()
+print(f'inf: {output}')
 
 print(f'ground: {label_ten}')
 
@@ -81,6 +76,5 @@ for i in range(int(output.size(dim=0))//9):
 			plt.text(x+2, y-2, f'{i}:{j}', c='r', fontsize=9)
 
 plt.show()
-
 
 
