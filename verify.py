@@ -41,8 +41,8 @@ def index_load(i):
 			y = data_indexed[i]["regions"][j]["shape_attributes"]["cy"]
 			corner = int(data_indexed[i]["regions"][j]["region_attributes"]["aruco"])
 			#print(f'corner {corner}')
-			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / img_ten.size(dim=2)
-			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / img_ten.size(dim=1)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / (img_ten.size(dim=2)-1)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / (img_ten.size(dim=1)-1)
 			label_ten[9*(corner//10)] = float(1)
 		except:
 			print('empty 0 input')
@@ -70,8 +70,8 @@ output.to("cpu")
 for i in range(int(output.size(dim=0))//9):
 	if(output[9*i] > conf):
 		for j in range(4):
-			x = float(output[(9*i)+(2*j)+1] * 224)
-			y = float(output[(9*i)+(2*j)+2] * 224)
+			x = float(output[(9*i)+(2*j)+1] * 223)
+			y = float(output[(9*i)+(2*j)+2] * 223)
 			plt.scatter(x=[x], y=[y], c='r', s=7)
 			plt.text(x+2, y-2, f'{i}:{j}', c='r', fontsize=9)
 

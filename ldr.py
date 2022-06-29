@@ -35,8 +35,8 @@ def index_load(i):
 			y = data_indexed[i]["regions"][j]["shape_attributes"]["cy"]
 			corner = int(data_indexed[i]["regions"][j]["region_attributes"]["aruco"])
 			#print(f'corner {corner}')
-			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / img_ten.size(dim=2)
-			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / img_ten.size(dim=1)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+1)] = float(x) / (img_ten.size(dim=2)-1)
+			label_ten[(9*(corner//10)) + (2*(corner%10)+2)] = float(y) / (img_ten.size(dim=1)-1)
 			label_ten[9*(corner//10)] = float(1)
 		except:
 			#print('empty 0 input')
