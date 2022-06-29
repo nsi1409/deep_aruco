@@ -35,10 +35,12 @@ output = model(img_ten)
 output = output.squeeze()
 print(f'inf: {output}')
 
+print(f'img path: {path}')
+
 def index_load(i):
 	label_ten = torch.zeros(9*number_tags)
 	path = data_indexed[i]["filename"]
-	print(path)
+	print(f'label path: {path}')
 	img = Image.open(f'imgs/{path}')
 	img_ten = convert_tensor(img)
 
@@ -76,7 +78,7 @@ for i in range(int(output.size(dim=0))//9):
 			x = float(output[(9*i)+(2*j)+1] * 224)
 			y = float(output[(9*i)+(2*j)+2] * 224)
 			plt.scatter(x=[x], y=[y], c='r', s=7)
-			plt.text(x+.03, y+.03, f'{i}:{j}', c='r', fontsize=9)
+			plt.text(x+2, y-2, f'{i}:{j}', c='r', fontsize=9)
 
 plt.show()
 
