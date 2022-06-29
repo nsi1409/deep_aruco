@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 number_tags = 2
 weight_path = 'deep_aruco.trch'
-test_number = 7
+test_number = 8
 
 f = open('annotations/aruco_v0.1.json')
 data = json.load(f)
@@ -54,27 +54,30 @@ def index_load(i):
 
 	return img_ten, label_ten
 
-img_ten, label_ten = index_load(test_number)
+while(1):
+	test_number = int(input("Enter test number: "))
 
-output = model(img_ten.unsqueeze(0))
-output = output.squeeze()
-print(f'inf: {output}')
+	img_ten, label_ten = index_load(test_number)
 
-print(f'ground: {label_ten}')
+	output = model(img_ten.unsqueeze(0))
+	output = output.squeeze()
+	print(f'inf: {output}')
 
-implot = plt.imshow(img_ten.squeeze().permute(1, 2, 0).to("cpu"))
+	print(f'ground: {label_ten}')
 
-conf = 0.7
+	implot = plt.imshow(img_ten.squeeze().permute(1, 2, 0).to("cpu"))
 
-output.to("cpu")
-for i in range(int(output.size(dim=0))//9):
-	if(output[9*i] > conf):
-		for j in range(4):
-			x = float(output[(9*i)+(2*j)+1] * 223)
-			y = float(output[(9*i)+(2*j)+2] * 223)
-			plt.scatter(x=[x], y=[y], c='r', s=7)
-			plt.text(x+2, y-2, f'{i}:{j}', c='r', fontsize=9)
+	conf = 0.7
 
-plt.show()
+	output.to("cpu")
+	for i in range(int(output.size(dim=0))//9):
+		if(output[9*i] > conf):
+			for j in range(4):
+				x = float(output[(9*i)+(2*j)+1] * 223)
+				y = float(output[(9*i)+(2*j)+2] * 223)
+				plt.scatter(x=[x], y=[y], c='r', s=7)
+				plt.text(x+2, y-2, f'{i}:{j}', c='r', fontsize=9)
+
+	plt.show()
 
 
